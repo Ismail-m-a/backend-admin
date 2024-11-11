@@ -1,6 +1,7 @@
 // admin_routes.js in routes folder
 const express = require('express');
 const adminController = require("../controllers/admin_controller");
+const { checkAdmin } = require('../middleware/role_middleware'); // middleware
 const router = express.Router();
 
 /**
@@ -36,7 +37,7 @@ router.post('/users', adminController.createUser);
  *       200:
  *         description: A list of users.
  */
-router.get('/users', adminController.getAllUsers);
+router.get('/users', checkAdmin, adminController.getAllUsers);
 
 /**
  * @swagger
@@ -110,7 +111,7 @@ router.put('/users/:id', adminController.updateUser);
  *       404:
  *         description: User not found.
  */
-router.delete('/users/:id', adminController.deleteUser);
+router.delete('/users/:id', checkAdmin, adminController.deleteUser);
 
 /**
  * @swagger
@@ -224,11 +225,18 @@ router.post('/users/:id/groups', adminController.addUserToGroup);
 router.delete('/users/:id/groups/:groupName', adminController.removeUserFromGroup);
 
 // Cusub aan ku daray.
-router.delete('/posts/:postId', adminController.deletePost);
-router.post('/users/:id/warn', adminController.warnUser);
-router.post('/users/:id/block', adminController.blockUser);
+// Post Routes
+router.post('/posts', adminController.createPost);
+router.get('/posts', adminController.getAllPosts);
+router.post('/reports', adminController.reportPost);
+router.delete('/posts/:postId', checkAdmin, adminController.deletePostById);
+
+// Category Routes
 router.post('/categories', adminController.addCategory);
-router.delete('/categories/:name', adminController.deleteCategory);
+router.get('/categories', adminController.getCategories);
+router.delete('/categories/:name', checkAdmin, adminController.deleteCategory);
+
+// Statistics Route
 router.get('/statistics', adminController.getForumStatistics);
 
 

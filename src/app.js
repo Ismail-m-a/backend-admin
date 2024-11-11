@@ -90,6 +90,9 @@ if(API_DOCS) {
 
 app.use('/api/auth', require('./routes/auth_routes'));
 app.use('/api/admin', require('./routes/admin_routes'));
+app.use('/api/posts', require('./routes/post_routes')); // <-- Add this line to register the post routes
+app.use('/api/categories', require('./routes/category_routes')); // <-- Add this line for categories
+
 
 app.use((req, res) => res.status(404).send('Not Found'));
 

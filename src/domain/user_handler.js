@@ -5,22 +5,26 @@ const authHandler = require('./auth_handler');
 let users = [
     {
         id: '543d719e-da91-429d-bbaa-8010a9556381',
-        username: "admin",
-        password: "$2b$10$H3fuKg7oVfRIAHfGhP.riOiAJ1buARooRUU61wD1FxT0eVoLWIKJG"
+        username: "said",
+        password: "$2b$10$H3fuKg7oVfRIAHfGhP.riOiAJ1buARooRUU61wD1FxT0eVoLWIKJG",
+        role: "user"
     },
     {
         id: '543d719e-da91-429d-bbaa-8010a9556382',
-        username: "user",
-        password: "$2b$10$G.oUiUVQFOgLejSiV0uALeu4e72zvizj6FOOtdyXFk1HgDS1lDtSO"
+        username: "mona",
+        password: "$2b$10$G.oUiUVQFOgLejSiV0uALeu4e72zvizj6FOOtdyXFk1HgDS1lDtSO",
+        role: "user"
     },
     {
         id: '543d719e-da91-429d-bbaa-8010a9556383',
         username: "gdpr",
-        password: "$2b$10$AgA8W4RDTASLM7H877.lvOWrzLLnC6s866iNMMVODNddfasMOK2S6"
+        password: "$2b$10$AgA8W4RDTASLM7H877.lvOWrzLLnC6s866iNMMVODNddfasMOK2S6",
+        role: "user"
     },
     {   "id": "eb1670c2-479f-4222-8767-e2f9fe81c918",
 		"username": "hassan",
 		"password": "$2b$10$rdL/CAgaWi2qu8VKRCfoMO3D/a1Vk9lADfeNArvjqwcW2.eqw/VM6",
+        role: "admin"
     }
 ];
 let groups = {
