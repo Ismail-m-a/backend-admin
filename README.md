@@ -18,8 +18,8 @@ This project provides an API for managing users, posts, groups, and categories. 
 1. **Clone the repository:**
 
     ```bash
-    git clone https://github.com/your-username/Backend-Admin.git
-    cd Backend-Admin
+    git clone https://github.com/your-username/backend-admin.git
+    cd backend-admin
     ```
 
 2. **Install dependencies:**
