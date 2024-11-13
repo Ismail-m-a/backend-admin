@@ -47,7 +47,7 @@ The API runs on `http://localhost:3000` by default. To test the API, use a tool 
 ## API Endpoints
 
 ### User Endpoints
-
+- **Login User:** `POST /api//auth/login`
 - **Create User:** `POST /api/admin/users`
 - **List All Users:** `GET /api/admin/users`
 - **Get User by ID:** `GET /api/admin/users/:id`
