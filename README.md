@@ -1,137 +1,133 @@
-# Auth Server
+# Backend-Admin API
 
-## Arkitektur
+This project provides an API for managing users, posts, groups, and categories. It includes role-based access control where admins have extended privileges, such as deleting any post, while regular users can only delete their own posts.
 
-```mermaid
-graph LR
-    BF[business-frontend] -- "API Requests" --> BB[business-backend]
-    AF[admin-frontend] -- "API Requests" --> AB[admin-backend]
-    BB -- "API Calls for authentication" --> AS[auth-server]
-    AB -- "Admin operations and login" --> AS
+## Table of Contents
 
-    BB -.-> DB[(Database)]
-    AB -.-> DB[(Database)]
-    AS -.-> DB[(Database)]
+- [Installation](#installation)
+- [Usage](#usage)
+- [API Endpoints](#api-endpoints)
+- [Authorization](#authorization)
+- [Testing](#testing)
+- [Folder Structure](#folder-structure)
+- [Environment Variables](#environment-variables)
+- [License](#license)
 
-    classDef frontend fill:#f9f,stroke:#333,stroke-width:2px;
-    classDef backend fill:#ccf,stroke:#333,stroke-width:2px;
-    classDef database fill:#ffc,stroke:#333,stroke-width:2px;
-    classDef auth fill:#fc9,stroke:#333,stroke-width:2px;
+## Installation
 
-    class BF,AF frontend;
-    class BB,AB backend;
-    class AS auth;
-    class DB database;
-```
+1. **Clone the repository:**
 
-<hr>
+    ```bash
+    git clone https://github.com/your-username/Backend-Admin.git
+    cd Backend-Admin
+    ```
 
-## Sequence Diagram
+2. **Install dependencies:**
 
-```mermaid
-sequenceDiagram
-    participant BF as Business-Frontend
-    participant BB as Business-Backend
-    participant AS as Auth-Server
-    participant DB as Database
+    ```bash
+    npm install
+    ```
 
-    BF->>+BB: Send login credentials (username, password)
-    BB->>+AS: Verify credentials
-    AS->>+DB: Check user credentials in database
-    DB-->>-AS: Return verification result
-    alt credentials valid
-        AS->>+AS: Generate access token
-        AS-->>-BB: Send access token
-        BB->>+BF: Return access token
-        BF->>BF: Store access token and proceed to user session
-    else credentials invalid
-        AS-->>-BB: Send error message
-        BB->>-BF: Relay error message
-    end
-```
+3. **Set up environment variables:**
+
+   Create a `.env` file in the project root and add the necessary environment variables (refer to [Environment Variables](#environment-variables)).
+
+4. **Run the development server:**
+
+    ```bash
+    npm start
+    ```
+
+## Usage
+
+The API runs on `http://localhost:3000` by default. To test the API, use a tool like [Insomnia](https://insomnia.rest/) or [Postman](https://www.postman.com/).
+
+**Note:** The API uses role-based access control (RBAC). Admin users have full access, while regular users have restricted access to certain actions.
+
+## API Endpoints
+
+### User Endpoints
+
+- **Create User:** `POST /api/admin/users`
+- **List All Users:** `GET /api/admin/users`
+- **Get User by ID:** `GET /api/admin/users/:id`
+- **Update User:** `PUT /api/admin/users/:id`
+- **Delete User:** `DELETE /api/admin/users/:id` (Admin only)
+
+### Group Endpoints
+
+- **Create Group:** `POST /api/admin/groups`
+- **List All Groups:** `GET /api/admin/groups`
+- **Delete Group:** `DELETE /api/admin/groups/:name`
+
+### Post Endpoints
+
+- **Create Post:** `POST /api/posts`
+- **List All Posts:** `GET /api/posts`
+- **Delete Post:** `DELETE /api/posts/:postId` (Admins can delete any post, while users can delete only their own posts)
+- **Report Post:** `POST /api/reports`
+
+### Category Endpoints
+
+- **Create Category:** `POST /api/categories`
+- **List All Categories:** `GET /api/categories`
+- **Delete Category:** `DELETE /api/categories/:name` (Admin only)
+
+### Statistics Endpoint
+
+- **Get Forum Statistics:** `GET /api/statistics`
+
+## Authorization
+
+The project has an RBAC system:
+- **Admin:** Can manage all users, posts, groups, and categories.
+- **User:** Can only manage their own posts and view groups and categories.
+
+In routes where admin access is required, middleware is applied to check the user's role before proceeding.
+
+## Testing
+
+To test the API, use a tool like [Insomnia](https://insomnia.rest/) or [Postman](https://www.postman.com/).
+
+### Example Tests
+
+1. **Creating a Post**
+   - **Endpoint:** `POST /api/posts`
+   - **Body:**
+     ```json
+     {
+       "authorId": "user-id",
+       "content": "Post content",
+       "category": "Category name"
+     }
+     ```
+   - **Expected Result:** Returns the created post with `201` status.
+
+2. **Deleting a Post**
+   - **Endpoint:** `DELETE /api/posts/:postId`
+   - **Note:** Ensure that the `userId` matches the post’s author or is an admin to delete the post.
+   - **Expected Result:** Admins can delete any post; regular users can delete only their posts.
+
+3. **Checking Unauthorized Access**
+   - Attempt to access an endpoint that requires admin privileges as a regular user.
+   - **Expected Result:** `403 Access denied` message.
+
+## Folder Structure
 
 
-<hr>
+### Key Files
 
-## Översikt
+- **`app.js`**: Initializes the Express app, middleware, and routes.
+- **`controllers/admin_controller.js`**: Defines functions for user, post, and group management.
+- **`routes/admin_routes.js`**: Admin-related routes.
+- **`routes/post_routes.js`**: Post-related routes.
+- **`domain/user_handler.js`**: Business logic for users, including role management.
+- **`domain/post_handler.js`**: Business logic for posts, including ownership checks.
 
-```mermaid
-classDiagram
-    class UserHandler {
-        +getUserById(id)
-        +getUsers()
-        +addUser(user)
-        +updateUser(id, details)
-        +deleteUser(id)
-    }
+## Environment Variables
 
-    class GroupHandler {
-        +addGroup(groupName)
-        +listGroups()
-        +deleteGroup(groupName)
-        +addUserToGroup(userId, groupName)
-        +removeUserFromGroup(userId, groupName)
-    }
+The application requires certain environment variables. Add these variables to your `.env` file:
 
-    class AuthHandler {
-        +generateAccessToken(user)
-        +generateRefreshToken(user)
-        +validateAccessToken(token)
-        +validateRefreshToken(token)
-        +generateCsrfToken()
-    }
-
-    class AdminController {
-        +createUser()
-        +getAllUsers()
-        +getUser()
-        +updateUser()
-        +deleteUser()
-        +createGroup()
-        +getGroups()
-        +deleteGroup()
-        +addUserToGroup()
-        +removeUserFromGroup()
-    }
-
-    class AuthController {
-        +login()
-        +refreshToken()
-        +logout()
-    }
-
-    class AdminRoutes {
-        --Routes linked to AdminController methods--
-    }
-
-    class AuthRoutes {
-        --Routes linked to AuthController methods--
-    }
-
-    class Config {
-        +readConfig()
-        +getConfigValue(key)
-    }
-
-    class Service {
-        --Starts the application--
-    }
-
-    class App {
-        --Configures middleware and routes--
-    }
-
-    %% Linking modules
-    AuthHandler --> UserHandler : Uses for Token Validation
-    AdminController --> UserHandler : Manages Users
-    AdminController --> GroupHandler : Manages Groups
-    AuthController --> AuthHandler : Uses for Authentication Processes
-    AdminRoutes --> AdminController : Routes to Controller
-    AuthRoutes --> AuthController : Routes to Controller
-    Service --> App : Initializes
-    Config --> UserHandler : Provides Configuration
-    Config --> GroupHandler : Provides Configuration
-    Config --> AuthHandler : Provides Configuration
-    App --> AdminRoutes : Includes Routes
-    App --> AuthRoutes : Includes Routes
-```
+```plaintext
+API_DOCS=true                      # Enable Swagger documentation
+CORS_ALLOWED_ORIGINS="http://localhost:3000" # Allow CORS for this origin
