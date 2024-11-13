@@ -108,7 +108,28 @@ To test the API, use a tool like [Insomnia](https://insomnia.rest/) or [Postman]
    - **Note:** Ensure that the `userId` matches the post’s author or is an admin to delete the post.
    - **Expected Result:** Admins can delete any post; regular users can delete only their posts.
 
-3. **Checking Unauthorized Access**
+3. **Creating a Category**
+   - **Endpoint:** `POST /api/categories`
+   - **Body:**
+     ```json
+     {
+       "name": "Category Name",
+       "description": "Description of the category"
+     }
+     ```
+   - **Expected Result:** Returns a success message with `201` status if created successfully.
+
+4. **Creating a Group**
+   - **Endpoint:** `POST /api/admin/groups`
+   - **Body:**
+     ```json
+     {
+       "groupName": "New Group"
+     }
+     ```
+   - **Expected Result:** Returns a success message with `201` status if created successfully.
+
+5. **Checking Unauthorized Access**
    - Attempt to access an endpoint that requires admin privileges as a regular user.
    - **Expected Result:** `403 Access denied` message.
 
