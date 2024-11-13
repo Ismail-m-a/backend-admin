@@ -74,7 +74,7 @@ if(API_DOCS) {
     const swaggerUi = require("swagger-ui-express");
     const swaggerOptions = require('./swaggerConfig');
     app.use("/api-docs", (req, res, next) => {
-        res.setHeader("Cache-Control", "no-store"); // Prevents caching
+        res.setHeader("Cache-Control", "no-store"); 
         next();
     });
     app.get('/', (req, res) => {
@@ -89,6 +89,7 @@ if(API_DOCS) {
 }
 
 app.use('/api/auth', require('./routes/auth_routes'));
+console.log("Auth routes loaded");
 app.use('/api/admin', require('./routes/admin_routes'));
 app.use('/api/posts', require('./routes/post_routes')); 
 app.use('/api/categories', require('./routes/category_routes')); 
