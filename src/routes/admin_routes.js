@@ -1,7 +1,7 @@
 // admin_routes.js in routes folder
 const express = require('express');
 const adminController = require("../controllers/admin_controller");
-const { checkAdmin } = require('../middleware/role_middleware'); // middleware
+const { checkAdmin } = require('../middleware/role_middleware'); // middleware till admin rollen
 const router = express.Router();
 
 /**
@@ -224,7 +224,7 @@ router.post('/users/:id/groups', adminController.addUserToGroup);
  */
 router.delete('/users/:id/groups/:groupName', adminController.removeUserFromGroup);
 
-// Cusub aan ku daray.
+
 // Post Routes
 router.post('/posts', adminController.createPost);
 router.get('/posts', adminController.getAllPosts);

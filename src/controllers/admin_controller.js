@@ -8,7 +8,7 @@ const {
     addUserToGroup, removeUserFromGroup, getUserByUsername
 } = require('../domain/user_handler');
 
-// Create a new user
+// Skapa ny user
 exports.createUser = async (req, res) => {
     const user = req.body;
 
@@ -25,7 +25,7 @@ exports.createUser = async (req, res) => {
     }
 };
 
-// Fetch all users
+// Fetcha all users
 exports.getAllUsers = (req, res) => {
     try {
         const users = getUsers();
@@ -39,7 +39,7 @@ exports.getAllUsers = (req, res) => {
     }
 };
 
-// Fetch a specific user by ID
+// Fetcha en specifik user by ID
 exports.getUser = (req, res) => {
     const id = req.params.id;
     const user = getUserById(id);
@@ -50,7 +50,7 @@ exports.getUser = (req, res) => {
     }
 };
 
-// Update user details
+// Updatera user detailjer
 exports.updateUser = (req, res) => {
     const id = req.params.id;
     const newUserDetails = req.body;
@@ -61,7 +61,7 @@ exports.updateUser = (req, res) => {
     }
 };
 
-// Delete a user by ID
+// Radera user by ID
 exports.deleteUser = (req, res) => {
     const id = req.params.id;
     if (deleteUserById(id)) {
@@ -71,7 +71,7 @@ exports.deleteUser = (req, res) => {
     }
 };
 
-// Add a user to a group
+// Addera user till en grupp
 exports.addUserToGroup = (req, res) => {
     const userId = req.params.id;
     const groupName = req.body.groupName;
@@ -82,7 +82,7 @@ exports.addUserToGroup = (req, res) => {
     }
 };
 
-// Remove a user from a group
+// Ta bort  user från en group
 exports.removeUserFromGroup = (req, res) => {
     const userId = req.params.id;
     const groupName = req.params.groupName;
@@ -93,7 +93,7 @@ exports.removeUserFromGroup = (req, res) => {
     }
 };
 
-// Create a new group
+// Skapa a new group
 exports.createGroup = (req, res) => {
     const groupName = req.body.groupName;
     if (addGroup(groupName)) {
@@ -117,7 +117,7 @@ exports.getGroups = (req, res) => {
     }
 };
 
-// Delete a group by name
+// Radera group med name
 exports.deleteGroup = (req, res) => {
     const groupName = req.params.name;
     if (deleteGroup(groupName)) {
@@ -127,7 +127,7 @@ exports.deleteGroup = (req, res) => {
     }
 };
 
-// Create a post
+// Skapa post/inlägg
 exports.createPost = (req, res) => {
     const { authorId, content, category } = req.body;
     const categoryExists = categoryHandler.getCategories().some(cat => cat.name === category);
@@ -140,7 +140,7 @@ exports.createPost = (req, res) => {
     res.status(201).json(post);
 };
 
-// Get all posts
+// Hämta all posts
 exports.getAllPosts = (req, res) => {
     const posts = postHandler.getAllPosts();
     if (posts.length === 0) {
@@ -149,12 +149,12 @@ exports.getAllPosts = (req, res) => {
     res.status(200).json(posts);
 };
 
-// Delete a post
+// Radera en post
 exports.deletePostById = (req, res) => { 
     const { postId } = req.params;
     const { userId } = req.body; // Ensure userId is sent in the request body
 
-    // Get the user and post details
+    // Get user, post detailjer
     const user = getUserById(userId);
     const post = postHandler.getPostById(postId);
 
@@ -165,23 +165,23 @@ exports.deletePostById = (req, res) => {
         return res.status(404).json({ message: 'Post not found.' });
     }
 
-    // Check if the user is an admin or the author of the post
+    // Kontrollera användaren är Admin eller user innan radera
     if (user && (user.role === 'admin' || post.authorId === userId)) {
         const success = postHandler.deletePostById(postId);
-        console.log("Post deleted:", success); // Log if post was deleted successfully
+        console.log("Post deleted:", success); 
         if (success) {
             return res.status(200).json({ message: 'Post deleted successfully.' });
         } else {
             return res.status(500).json({ message: 'Failed to delete post.' });
         }
     } else {
-        console.log("Access denied for user:", userId); // Log access denied
+        console.log("Access denied for user:", userId);  
         return res.status(403).json({ message: 'Access denied. You can only delete your own posts.' });
     }
 };
 
 
-// Report a post
+// Reportera post
 exports.reportPost = (req, res) => {
     const { postId, reason } = req.body;
     const success = postHandler.reportPost(postId, reason);
@@ -192,7 +192,7 @@ exports.reportPost = (req, res) => {
     }
 };
 
-// Add a category
+// Addera category
 exports.addCategory = (req, res) => {
     const { name, description } = req.body;
     if (categoryHandler.addCategory(name, description)) {
@@ -202,12 +202,12 @@ exports.addCategory = (req, res) => {
     }
 };
 
-// Get all categories
+// Hämta alla categories
 exports.getCategories = (req, res) => {
     res.status(200).json(categoryHandler.getCategories());
 };
 
-// Delete a category by name
+// Radera category med name
 exports.deleteCategory = (req, res) => {
     const { name } = req.params;
     if (categoryHandler.deleteCategory(name)) {
@@ -217,7 +217,7 @@ exports.deleteCategory = (req, res) => {
     }
 };
 
-// Get forum statistics
+// Hämta statistics. obs!1 inte färdig
 exports.getForumStatistics = (req, res) => {
     res.status(200).json(statisticsHandler.getStatistics());
 };

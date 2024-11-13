@@ -2,7 +2,7 @@
 const { API_DOCS, CORS_ALLOWED_ORIGINS } = require('./config');
 const express = require('express');
 const helmet = require('helmet');
-const cors = require('cors'); // Make sure to have the cors package installed
+const cors = require('cors'); 
 const swaggerJsDoc = require("swagger-jsdoc");
 const app = express();
 app.use(express.json());
@@ -90,8 +90,8 @@ if(API_DOCS) {
 
 app.use('/api/auth', require('./routes/auth_routes'));
 app.use('/api/admin', require('./routes/admin_routes'));
-app.use('/api/posts', require('./routes/post_routes')); // <-- Add this line to register the post routes
-app.use('/api/categories', require('./routes/category_routes')); // <-- Add this line for categories
+app.use('/api/posts', require('./routes/post_routes')); 
+app.use('/api/categories', require('./routes/category_routes')); 
 
 
 app.use((req, res) => res.status(404).send('Not Found'));

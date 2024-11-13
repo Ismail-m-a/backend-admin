@@ -64,7 +64,7 @@ exports.getUser = (id) => {
     return users.find(user => user.id === id);
 };
 
-//Warning does not work with password change
+
 exports.updateUserById = (id, newUserDetails) => {
     let userIndex = users.findIndex(user => user.id === id);
     if (userIndex !== -1) {
@@ -77,7 +77,7 @@ exports.updateUserById = (id, newUserDetails) => {
 
 exports.deleteUser = (id) => {
     let initialLength = users.length;
-    users = users.filter(user => user.id === id);  // Removed parseInt
+    users = users.filter(user => user.id === id);  
     return initialLength !== users.length;
 };
 
@@ -158,7 +158,7 @@ exports.getUsers = () => {
 exports.warnUserById = (userId, warningMessage) => {
     const user = users.find(user => user.id === userId);
     if (user) {
-        user.warning = warningMessage; // Add warning field to user object if not present
+        user.warning = warningMessage; 
         return true;
     }
     return false;
@@ -167,7 +167,7 @@ exports.warnUserById = (userId, warningMessage) => {
 exports.blockUserById = (userId) => {
     const user = users.find(user => user.id === userId);
     if (user) {
-        user.isBlocked = true; // Assume user object has an `isBlocked` field
+        user.isBlocked = true; 
         return true;
     }
     return false;
