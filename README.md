@@ -46,40 +46,139 @@ The API runs on `http://localhost:3000` by default. To test the API, use a tool 
 
 ## API Endpoints
 
+### Authentication
+
+- **Login User**  
+  Authenticates a user and returns tokens in HTTP-only cookies.
+  - **Endpoint:** `POST /api/auth/login`
+  - **Request Body:**
+    ```json
+    {
+      "username": "hassan",
+      "password": "yourpassword"
+    }
+    ```
+  - **Expected Response:** `{ "isLoggedIn": true, "csrfToken": "<csrfToken>" }`
+
 ### User Endpoints
-- **Login User:** `POST /api//auth/login`
-- **Create User:** `POST /api/admin/users`
-- **List All Users:** `GET /api/admin/users`
-- **Get User by ID:** `GET /api/admin/users/:id`
-- **Update User:** `PUT /api/admin/users/:id`
-- **Delete User:** `DELETE /api/admin/users/:id` (Admin only)
+- **Create User**  
+  Creates a new user (admin only).
+  - **Endpoint:** `POST /api/admin/users`
+  - **Request Body:**
+    ```json
+    {
+      "username": "newuser",
+      "password": "password123",
+      "role": "user"
+    }
+    ```
+
+- **List All Users**  
+  Lists all users (admin only).
+  - **Endpoint:** `GET /api/admin/users`
+  
+- **Get User by ID**  
+  Retrieves user information by ID.
+  - **Endpoint:** `GET /api/admin/users/:id`
+
+- **Update User**  
+  Updates user information.
+  - **Endpoint:** `PUT /api/admin/users/:id`
+  - **Request Body:** 
+    ```json
+    {
+      "username": "updatedUsername",
+      "password": "newPassword123"
+    }
+    ```
+
+- **Delete User**  
+  Deletes a user by ID (admin only).
+  - **Endpoint:** `DELETE /api/admin/users/:id`
 
 ### Group Endpoints
 
-- **Create Group:** `POST /api/admin/groups`
-- **List All Groups:** `GET /api/admin/groups`
-- **Delete Group:** `DELETE /api/admin/groups/:name`
+- **Create Group**  
+  Creates a new group.
+  - **Endpoint:** `POST /api/admin/groups`
+  - **Request Body:**
+    ```json
+    {
+      "groupName": "New Group"
+    }
+    ```
+
+- **List All Groups**  
+  Retrieves a list of all groups.
+  - **Endpoint:** `GET /api/admin/groups`
+
+- **Delete Group**  
+  Deletes a specific group by name.
+  - **Endpoint:** `DELETE /api/admin/groups/:name`
 
 ### Post Endpoints
 
-- **Create Post:** `POST /api/posts`
-- **List All Posts:** `GET /api/posts`
-- **Delete Post:** `DELETE /api/posts/:postId` (Admins can delete any post, while users can delete only their own posts)
-- **Report Post:** `POST /api/reports`
+- **Create Post**  
+  Adds a new post to a specified category.
+  - **Endpoint:** `POST /api/posts`
+  - **Request Body:**
+    ```json
+    {
+      "authorId": "user-id",
+      "content": "Post content",
+      "category": "General"
+    }
+    ```
+
+- **List All Posts**  
+  Retrieves a list of all posts.
+  - **Endpoint:** `GET /api/posts`
+
+- **Delete Post**  
+  Deletes a post by ID. Admins can delete any post, while regular users can delete only their own posts.
+  - **Endpoint:** `DELETE /api/posts/:postId`
+
+- **Report Post**  
+  Reports a post for review.
+  - **Endpoint:** `POST /api/reports`
+  - **Request Body:**
+    ```json
+    {
+      "postId": "post-id",
+      "reason": "Inappropriate content"
+    }
+    ```
 
 ### Category Endpoints
 
-- **Create Category:** `POST /api/categories`
-- **List All Categories:** `GET /api/categories`
-- **Delete Category:** `DELETE /api/categories/:name` (Admin only)
+- **Create Category**  
+  Adds a new category.
+  - **Endpoint:** `POST /api/categories`
+  - **Request Body:**
+    ```json
+    {
+      "name": "Category Name",
+      "description": "Description of the category"
+    }
+    ```
+
+- **List All Categories**  
+  Retrieves all categories.
+  - **Endpoint:** `GET /api/categories`
+
+- **Delete Category**  
+  Deletes a specific category by name (admin only).
+  - **Endpoint:** `DELETE /api/categories/:name`
 
 ### Statistics Endpoint
 
-- **Get Forum Statistics:** `GET /api/statistics`
+- **Get Forum Statistics**  
+  Retrieves forum statistics.
+  - **Endpoint:** `GET /api/statistics`
 
 ## Authorization
 
-The project has an RBAC system:
+This API uses role-based access control:
 - **Admin:** Can manage all users, posts, groups, and categories.
 - **User:** Can only manage their own posts and view groups and categories.
 
@@ -91,50 +190,83 @@ To test the API, use a tool like [Insomnia](https://insomnia.rest/) or [Postman]
 
 ### Example Tests
 
-1. **Creating a Post**
+1. **Logging In**  
+   - **Endpoint:** `POST /api/auth/login`
+   - **Body:** 
+     ```json
+     {
+       "username": "hassan",
+       "password": "yourpassword"
+     }
+     ```
+   - **Expected Result:** Tokens are set in cookies, and response returns `{ "isLoggedIn": true, "csrfToken": "<csrfToken>" }`.
+
+2. **Creating a Post**  
    - **Endpoint:** `POST /api/posts`
    - **Body:**
      ```json
      {
        "authorId": "user-id",
-       "content": "Post content",
-       "category": "Category name"
+       "content": "This is a new post",
+       "category": "General"
      }
      ```
-   - **Expected Result:** Returns the created post with `201` status.
+   - **Expected Result:** Created post details with status `201`.
 
-2. **Deleting a Post**
+3. **Deleting a Post**  
    - **Endpoint:** `DELETE /api/posts/:postId`
-   - **Note:** Ensure that the `userId` matches the post’s author or is an admin to delete the post.
-   - **Expected Result:** Admins can delete any post; regular users can delete only their posts.
+   - **Note:** Ensure `authorId` matches the post’s author ID or user has an admin role.
+   - **Expected Result:** 
+     - Admins can delete any post.
+     - Regular users can delete only their own posts.
+     - Returns `200` if successful, `403` for unauthorized users.
 
-3. **Creating a Category**
+4. **Creating a Category**  
    - **Endpoint:** `POST /api/categories`
    - **Body:**
      ```json
      {
-       "name": "Category Name",
-       "description": "Description of the category"
+       "name": "New Category",
+       "description": "This is a new category"
      }
      ```
-   - **Expected Result:** Returns a success message with `201` status if created successfully.
+   - **Expected Result:** Returns a success message with `201` status if created.
 
-4. **Creating a Group**
+5. **Creating a Group**  
    - **Endpoint:** `POST /api/admin/groups`
    - **Body:**
      ```json
      {
-       "groupName": "New Group"
+       "groupName": "Development Team"
      }
      ```
-   - **Expected Result:** Returns a success message with `201` status if created successfully.
+   - **Expected Result:** Returns success message with `201` status if created.
 
-5. **Checking Unauthorized Access**
-   - Attempt to access an endpoint that requires admin privileges as a regular user.
+6. **Accessing Admin-Only Endpoints as a User**  
+   - Attempt to access an admin-only endpoint as a regular user (e.g., deleting another user’s post).
    - **Expected Result:** `403 Access denied` message.
 
 ## Folder Structure
 
+```plaintext
+Backend-Admin
+├── src
+│   ├── controllers
+│   │   ├── admin_controller.js
+│   │   └── auth_controller.js
+│   ├── domain
+│   │   ├── user_handler.js
+│   │   ├── post_handler.js
+│   │   ├── auth_handler.js
+│   │   └── category_handler.js
+│   ├── routes
+│   │   ├── auth_routes.js
+│   │   ├── admin_routes.js
+│   │   └── post_routes.js
+│   ├── config.js
+│   └── app.js
+└── .env
+```
 
 ### Key Files
 
@@ -152,3 +284,7 @@ The application requires certain environment variables. Add these variables to y
 ```plaintext
 API_DOCS=true                      # Enable Swagger documentation
 CORS_ALLOWED_ORIGINS="http://localhost:3000" # Allow CORS for this origin
+SECURE=true
+HTTP_ONLY=true
+SAME_SITE="Strict"
+```
