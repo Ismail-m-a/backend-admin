@@ -4,21 +4,21 @@ const authHandler = require('./auth_handler');
 
 let users = [
     {
-        id: '543d719e-da91-429d-bbaa-8010a9556381',
-        username: "said",
-        password: "$2b$10$H3fuKg7oVfRIAHfGhP.riOiAJ1buARooRUU61wD1FxT0eVoLWIKJG",
+        "id": "d5754271-4ceb-4b28-b2f1-00f2150a931a",
+        "username": "said",
+        "password": "$2b$10$JeRA02rRS/6PX8RyMPMj8OJHkKI4xY608iGtSHUzD.CQJjEa6YAgm",
         role: "user"
     },
     {
-        id: '543d719e-da91-429d-bbaa-8010a9556382',
-        username: "mona",
-        password: "$2b$10$G.oUiUVQFOgLejSiV0uALeu4e72zvizj6FOOtdyXFk1HgDS1lDtSO",
+        "id": "472ce839-1ba2-47cf-b6fc-323b1fae5f1d",
+        "username": "mona",
+        "password": "$2b$10$mp1KZ5A8xgV.Js2Xbwgkm.haiMrZkGHOUt.CmK7VJFpHsTuybyA5W",
         role: "user"
     },
     {
-        id: '543d719e-da91-429d-bbaa-8010a9556383',
-        username: "gdpr",
-        password: "$2b$10$AgA8W4RDTASLM7H877.lvOWrzLLnC6s866iNMMVODNddfasMOK2S6",
+        "id": "574f8c63-4757-4015-8a4a-67e5e74ad79e",
+        "username": "jensen",
+        "password": "$2b$10$sVhnAZxhnbPFu/UHTpqPdu3kcdE8sasFeyfUp4rBejWx.ODF9O1vq",
         role: "user"
     },
     {   "id": "eb1670c2-479f-4222-8767-e2f9fe81c918",
