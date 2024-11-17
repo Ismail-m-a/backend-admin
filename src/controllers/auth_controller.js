@@ -1,10 +1,11 @@
+// auth_controller
 // Importerar konfigurationsinställningar för säkra cookies och liknande.
 const { SECURE, HTTP_ONLY, SAME_SITE } = require("../config");
 
 // Importerar funktioner för att hantera autentisering, som att generera tokens och validera lösenord.
 const { 
     generateAccessToken, generateRefreshToken, generateCsrfToken, 
-    validateRefreshToken, comparepareHashwords, cryptPassword 
+    validateRefreshToken, compareHashedPasswords, cryptPassword 
 } = require('../domain/auth_handler');
 
 // Importerar en funktion för att hämta en användare via användarnamnet.
@@ -16,24 +17,26 @@ const { getUserByUsername } = require('../domain/user_handler');
  * @param {Object} res - Svaret som används för att skicka tillbaka data eller tokens.
  */
 exports.login = async (req, res) => {
-    // Hämtar användarnamn och lösenord från begäran
     const { username, password } = req.body;
     if (!username || !password) {
         return res.status(400).send({ message: "Username and password are required" });
     }
 
     try {
-        // Validerar om användaren finns och om lösenordet är korrekt
         const user = await getUserByUsername(username);
+
         if (!user) {
             return res.status(401).send({ message: "Authentication failed. User not found." });
         }
-        const passwordIsValid = await comparepareHashwords(password, user.password);
+
+        console.log("Provided password:", password); // Log plain password
+        console.log("Stored hashed password:", user.password); // Log hashed password
+
+        const passwordIsValid = await compareHashedPasswords(password, user.password);
         if (!passwordIsValid) {
             return res.status(401).send({ message: "Authentication failed. Incorrect password." });
         }
 
-        // Genererar access-, refresh- och CSRF-tokens och sätter dessa som cookies
         const accessToken = generateAccessToken(user);
         const refreshToken = generateRefreshToken(user);
         const csrfToken = generateCsrfToken();
@@ -41,24 +44,25 @@ exports.login = async (req, res) => {
         res.cookie('accessToken', accessToken, {
             httpOnly: HTTP_ONLY,
             secure: SECURE,
-            maxAge: 15 * 60 * 1000,  // 15 minuter
-            sameSite: SAME_SITE
+            maxAge: 15 * 60 * 1000,  // 15 minutes
+            sameSite: SAME_SITE,
         });
 
         res.cookie('refreshToken', refreshToken, {
             httpOnly: HTTP_ONLY,
             secure: SECURE,
-            maxAge: 7 * 24 * 60 * 60 * 1000,  // 7 dagar
+            maxAge: 7 * 24 * 60 * 60 * 1000,  // 7 days
             path: '/refresh',
-            sameSite: SAME_SITE
+            sameSite: SAME_SITE,
         });
 
-        res.status(200).json({ isLoggedIn: true, csrfToken });
+        res.status(200).json({ isLoggedIn: true, csrfToken, accessToken, });
     } catch (error) {
         console.error(error);
         res.status(500).send({ message: "Internal server error" });
     }
 };
+
 
 /**
  * Uppdaterar användarens access- och refresh-tokens och sätter dem som cookies.

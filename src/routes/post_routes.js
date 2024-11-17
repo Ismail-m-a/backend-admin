@@ -1,38 +1,15 @@
-// post_routes.js in routes folder
 const express = require('express');
-const adminController = require("../controllers/admin_controller");
+const { extractUserId } = require('../middleware/auth_middleware'); 
+const postController = require('../controllers/post_controller'); 
 const router = express.Router();
 
-/**
- * @swagger
- * /api/posts:
- *   post:
- *     summary: Create a post
- *     description: Adds a new post to a specific category.
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               authorId:
- *                 type: string
- *                 description: ID of the post author
- *               content:
- *                 type: string
- *                 description: Content of the post
- *               category:
- *                 type: string
- *                 description: Category to which the post belongs
- *     responses:
- *       201:
- *         description: Post created successfully.
- *       400:
- *         description: Category does not exist or missing data.
- */
-router.post('/', adminController.createPost);
-router.get('/', adminController.getAllPosts);
-router.delete('/:postId', adminController.deletePostById);
+// Skapa post - Automatisk använd authorId från middleware
+router.post('/', extractUserId, postController.createPost);
+
+// Hämta all posts
+router.get('/', postController.getAllPosts);
+
+// Radera post med ID
+router.delete('/:postId', extractUserId, postController.deletePostById);
 
 module.exports = router;

@@ -1,3 +1,4 @@
+// admin_controller
 const postHandler = require('../domain/post_handler');
 const categoryHandler = require('../domain/category_handler');
 const statisticsHandler = require('../domain/statistics_handler');
@@ -62,12 +63,18 @@ exports.updateUser = (req, res) => {
 };
 
 // Radera user by ID
-exports.deleteUser = (req, res) => {
+exports.deleteUser = async (req, res) => {
     const id = req.params.id;
-    if (deleteUserById(id)) {
-        res.send('User deleted successfully');
-    } else {
-        res.status(404).send('User not found');
+    try {
+        const result = await deleteUserById(id);
+        if (result) {
+            res.send('User deleted successfully');
+        } else {
+            res.status(404).send('User not found');
+        }
+    } catch (error) {
+        console.error('Error deleting user:', error);
+        res.status(500).send('Error deleting user');
     }
 };
 

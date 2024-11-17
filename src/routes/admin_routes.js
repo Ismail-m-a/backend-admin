@@ -1,7 +1,7 @@
 // admin_routes.js in routes folder
 const express = require('express');
 const adminController = require("../controllers/admin_controller");
-const { checkAdmin } = require('../middleware/role_middleware'); // middleware till admin rollen
+const { checkAdmin } = require('../middleware/role_middleware'); 
 const router = express.Router();
 
 /**
