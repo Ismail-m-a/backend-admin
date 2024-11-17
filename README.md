@@ -1,7 +1,3 @@
-Here’s your updated original `README.md` with the addition of **Docker MySQL Setup** and **Using Insomnia for Authentication and Authorization** sections, while keeping all your original content intact:
-
----
-
 # Backend-Admin API
 
 This project provides an API for managing users, posts, groups, and categories. It includes role-based access control where admins have extended privileges, such as deleting any post, while regular users can only delete their own posts.
