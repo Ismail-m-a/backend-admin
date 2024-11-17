@@ -1,296 +1,226 @@
 # Backend-Admin API
 
-This project provides an API for managing users, posts, groups, and categories. It includes role-based access control where admins have extended privileges, such as deleting any post, while regular users can only delete their own posts.
+Det här projektet är en administrativ API-tjänst byggd med Node.js, Express, Sequelize och MySQL. Applikationen använder JSON Web Tokens (JWT) för autentisering och erbjuder rollbaserad åtkomstkontroll (RBAC).
 
 ---
 
-## Table of Contents
+## Funktioner
 
-- [Installation](#installation)
-- [Docker MySQL Setup](#docker-mysql-setup)
-- [Usage](#usage)
-- [API Endpoints](#api-endpoints)
-- [Authorization](#authorization)
-- [Testing](#testing)
-- [Folder Structure](#folder-structure)
-- [Environment Variables](#environment-variables)
-- [Using Insomnia](#using-insomnia)
+- Skapa och hantera användare.
+- Skapa och hantera användargrupper.
+- CRUD-operationer för användare, poster och kategorier via API.
+- Rollbaserad åtkomstkontroll (RBAC) för administratörer och användare.
+- Användarautentisering med JWT.
+- Docker för databasinställningar med MySQL.
 
 ---
 
-## Installation
+## Installation och användning
 
-1. **Clone the repository:**
+### 1. Klona repot
 
-    ```bash
-    git clone https://github.com/your-username/backend-admin.git
-    cd backend-admin
-    ```
-
-2. **Install dependencies:**
-
-    ```bash
-    npm install
-    ```
-
-3. **Set up environment variables:**
-
-   Create a `.env` file in the project root and add the necessary environment variables (refer to [Environment Variables](#environment-variables)).
-
-4. **Run the development server:**
-
-    ```bash
-    npm start
-    ```
-
----
-
-## Docker MySQL Setup
-
-To set up MySQL for this project, use Docker for quick and isolated database management.
-
-### 1. Run MySQL with Docker
-
-Run the following command to start a MySQL container:
+Börja med att klona projektet:
 
 ```bash
-docker run --name mysql-container -e MYSQL_ROOT_PASSWORD=root -e MYSQL_DATABASE=backend_db -e MYSQL_USER=admin -e MYSQL_PASSWORD=admin -p 3306:3306 -d mysql:8.0
+git clone https://github.com/your-username/backend-admin.git
+cd backend-admin
 ```
 
-**Explanation of Flags:**
-- `MYSQL_ROOT_PASSWORD`: Password for the root user.
-- `MYSQL_DATABASE`: Database name (`backend_db`).
-- `MYSQL_USER`: Non-root user (`admin`).
-- `MYSQL_PASSWORD`: Password for the non-root user (`admin`).
-- `-p 3306:3306`: Maps port 3306 of the container to the host.
+---
 
-### 2. Verify MySQL Container
+### 2. Installera beroenden
 
-Check if the container is running:
+Installera nödvändiga Node.js-paket:
 
 ```bash
-docker ps
+npm install
 ```
 
-To access the MySQL CLI:
+---
+
+### 3. Skapa en .env-fil
+
+Skapa en `.env`-fil i projektets rotmapp och lägg till följande miljövariabler:
+
+```plaintext
+API_DOCS=true
+ACCESS_TOKEN_SECRET=din_hemliga_access_token
+REFRESH_TOKEN_SECRET=din_hemliga_refresh_token
+DB_USER=admin
+DB_PASSWORD=admin
+DB_NAME=backend_db
+DB_HOST=db
+DB_PORT=3306
+PORT=3000
+CORS_ALLOWED_ORIGINS=http://localhost:3000
+```
+
+> **Viktigt:** Byt ut `ACCESS_TOKEN_SECRET` och `REFRESH_TOKEN_SECRET` mot egna hemligheter och håll dessa privata.
+
+---
+
+### 4. Kör applikationen med Docker
+
+Använd Docker Compose för att starta applikationen och databasen:
 
 ```bash
-docker exec -it mysql-container mysql -u admin -p
+docker-compose up --build
 ```
 
-Enter the password (`admin`) when prompted.
-
-### 3. Update Sequelize Configuration
-
-Update the `config/config.json` file to use the Docker MySQL credentials:
-
-```json
-{
-  "development": {
-    "username": "admin",
-    "password": "admin",
-    "database": "backend_db",
-    "host": "127.0.0.1",
-    "dialect": "mysql"
-  }
-}
-```
+Detta bygger och kör både backend-applikationen och MySQL-databasen i separata Docker-containrar.
 
 ---
 
-## Usage
+### 5. Åtkomst till applikationen
 
-The API runs on `http://localhost:3000` by default. Use tools like [Insomnia](https://insomnia.rest/) or [Postman](https://www.postman.com/) to test it.
+När applikationen körs är den tillgänglig via följande URL:er:
 
-**Note:** The API uses role-based access control (RBAC). Admin users have full access, while regular users have restricted access to certain actions.
-
----
-
-## API Endpoints
-
-### Authentication
-
-- **Login User**  
-  Authenticates a user and returns tokens in HTTP-only cookies.
-  - **Endpoint:** `POST /api/auth/login`
-  - **Request Body:**
-    ```json
-    {
-      "username": "hassan",
-      "password": "yourpassword"
-    }
-    ```
-  - **Expected Response:**
-    ```json
-    {
-      "isLoggedIn": true,
-      "csrfToken": "<csrfToken>"
-    }
-    ```
-
-- **Refresh Token**  
-  Updates the access and refresh tokens.
-  - **Endpoint:** `POST /api/auth/refresh`
-
-- **Logout**  
-  Logs out the user and clears tokens.
-  - **Endpoint:** `POST /api/auth/logout`
+- **Login:** `http://localhost:3000/api/auth/login`
+- **Användarhantering:** `http://localhost:3000/api/admin/users`
 
 ---
 
-### User Endpoints
+## API-endpoints
 
-- **Create User**  
-  Creates a new user (admin only).
-  - **Endpoint:** `POST /api/admin/users`
-  - **Request Body:**
-    ```json
-    {
-      "username": "newuser",
-      "password": "password123",
-      "role": "user"
-    }
-    ```
+### Auth Endpoints
 
-- **List All Users**  
-  Lists all users (admin only).
-  - **Endpoint:** `GET /api/admin/users`
-  
-- **Get User by ID**  
-  Retrieves user information by ID.
-  - **Endpoint:** `GET /api/admin/users/:id`
+- **POST /api/auth/login**  
+  Loggar in användaren och returnerar access och refresh tokens.
+- **POST /api/auth/logout**  
+  Loggar ut användaren genom att rensa JWT-cookies.
 
-- **Update User**  
-  Updates user information.
-  - **Endpoint:** `PUT /api/admin/users/:id`
-  - **Request Body:** 
-    ```json
-    {
-      "username": "updatedUsername",
-      "password": "newPassword123"
-    }
-    ```
+---
 
-- **Delete User**  
-  Deletes a user by ID (admin only).
-  - **Endpoint:** `DELETE /api/admin/users/:id`
+### Admin Endpoints
+
+- **GET /api/admin/users**  
+  Hämtar alla användare från databasen.
+- **POST /api/admin/users**  
+  Skapar en ny användare.
+- **GET /api/admin/users/:id**  
+  Hämtar användarinformation baserat på användarens ID.
+- **PUT /api/admin/users/:id**  
+  Uppdaterar användardata för en specifik användare baserat på ID.
+- **DELETE /api/admin/users/:id**  
+  Tar bort en användare baserat på ID.
+
+---
+
+### Group Endpoints
+
+- **POST /api/admin/groups**  
+  Skapar en ny grupp.
+- **GET /api/admin/groups**  
+  Hämtar alla grupper.
+- **DELETE /api/admin/groups/:name**  
+  Tar bort en grupp baserat på gruppnamnet.
 
 ---
 
 ### Post Endpoints
 
-- **Create Post**  
-  Adds a new post to a specified category.
-  - **Endpoint:** `POST /api/posts`
-  - **Request Body:**
-    ```json
-    {
-      "content": "Post content",
-      "category": "General"
-    }
-    ```
-
-- **List All Posts**  
-  Retrieves a list of all posts.
-  - **Endpoint:** `GET /api/posts`
-
-- **Delete Post**  
-  Deletes a post by ID. Admins can delete any post, while regular users can delete only their own posts.
-  - **Endpoint:** `DELETE /api/posts/:postId`
+- **POST /api/posts**  
+  Skapar ett nytt inlägg i en specificerad kategori.
+- **GET /api/posts**  
+  Hämtar alla inlägg.
+- **DELETE /api/posts/:postId**  
+  Tar bort ett inlägg baserat på ID (Admins kan ta bort alla inlägg, användare endast sina egna).
 
 ---
 
-## Authorization
+### Category Endpoints
 
-This API uses role-based access control:
-- **Admin:** Can manage all users, posts, groups, and categories.
-- **User:** Can only manage their own posts and view groups and categories.
-
-In routes where admin access is required, middleware is applied to check the user's role before proceeding.
-
----
-
-## Testing
-
-To test the API, use a tool like [Insomnia](https://insomnia.rest/) or [Postman](https://www.postman.com/).
+- **POST /api/categories**  
+  Skapar en ny kategori.
+- **GET /api/categories**  
+  Hämtar alla kategorier.
+- **DELETE /api/categories/:name**  
+  Tar bort en kategori baserat på dess namn (endast admin).
 
 ---
 
-## Using Insomnia
+## Docker
 
-Here’s how to authenticate and send requests with the access token using Insomnia:
+Applikationen använder Docker för att köra backend-servern och MySQL-databasen.
 
-1. **Login and Retrieve Token**
-   - **Request:**
-     ```http
-     POST /api/auth/login
-     ```
+### Docker Compose
+
+Användbara Docker Compose-kommandon:
+
+- **Bygg och starta containrar:**
+
+  ```bash
+  docker-compose up --build
+  ```
+
+- **Stoppa containrar:**
+
+  ```bash
+  docker-compose down
+  ```
+
+- **Se loggar för containrar:**
+
+  ```bash
+  docker-compose logs
+  ```
+
+### MySQL-databas
+
+För att ansluta till databasen via terminalen (MySQL CLI):
+
+```bash
+docker exec -it backend-admin-db mysql -u admin -p
+```
+
+Ange lösenordet `admin` när du blir ombedd.
+
+---
+
+## Användning av Insomnia
+
+1. **Logga in och hämta tokens**  
+   - **Endpoint:** `POST /api/auth/login`
    - **Body:**
      ```json
      {
-       "username": "hassan",
+       "username": "admin",
        "password": "password123"
      }
      ```
-   - **Response:**
-     The `accessToken` will be set in the `Authorization` header automatically.
+   - **Response:**  
+     Tokens returneras som cookies.
 
-2. **Set Authorization Header**
-   - Go to your Insomnia request.
-   - Under the "Headers" section, add:
-     - **Key:** `Authorization`
-     - **Value:** `Bearer <your_access_token>`
+2. **Använd Authorization-headern för skyddade endpoints**  
+   - Lägg till följande header:
+     ```
+     Authorization: Bearer <access_token>
+     ```
 
-3. **Test Protected Endpoint**
-   - Use the token in a protected endpoint:
-     - **Request:** `POST /api/posts`
-     - **Body:**
-       ```json
-       {
-         "content": "This is a post",
-         "category": "General"
-       }
-       ```
+3. **Testa skyddade endpoints som att skapa ett inlägg:**
+   - **Endpoint:** `POST /api/posts`
+   - **Body:**
+     ```json
+     {
+       "content": "Det här är ett inlägg.",
+       "category": "Allmänt"
+     }
+     ```
 
 ---
 
-## Folder Structure
+## Mappstruktur
 
 ```plaintext
 Backend-Admin
 ├── src
 │   ├── controllers
-│   │   ├── admin_controller.js
-│   │   └── auth_controller.js
 │   ├── domain
-│   │   ├── user_handler.js
-│   │   ├── post_handler.js
-│   │   ├── auth_handler.js
-│   │   └── category_handler.js
 │   ├── routes
-│   │   ├── auth_routes.js
-│   │   ├── admin_routes.js
-│   │   └── post_routes.js
 │   ├── config.js
 │   └── app.js
+├── docker-compose.yml
 └── .env
 ```
 
 ---
-
-## Environment Variables
-
-```plaintext
-API_DOCS=true                      # Enable Swagger documentation
-CORS_ALLOWED_ORIGINS="http://localhost:3000" # Allow CORS for this origin
-SECURE=true
-HTTP_ONLY=true
-SAME_SITE="Strict"
-ACCESS_TOKEN_SECRET=your_access_secret
-REFRESH_TOKEN_SECRET=your_refresh_secret
-DB_HOST=127.0.0.1
-DB_USER=admin
-DB_PASSWORD=admin
-DB_NAME=backend_db
-DB_PORT=3306
-```
