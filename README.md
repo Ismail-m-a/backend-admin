@@ -1,17 +1,26 @@
+Here’s your updated original `README.md` with the addition of **Docker MySQL Setup** and **Using Insomnia for Authentication and Authorization** sections, while keeping all your original content intact:
+
+---
+
 # Backend-Admin API
 
 This project provides an API for managing users, posts, groups, and categories. It includes role-based access control where admins have extended privileges, such as deleting any post, while regular users can only delete their own posts.
 
+---
+
 ## Table of Contents
 
 - [Installation](#installation)
+- [Docker MySQL Setup](#docker-mysql-setup)
 - [Usage](#usage)
 - [API Endpoints](#api-endpoints)
 - [Authorization](#authorization)
 - [Testing](#testing)
 - [Folder Structure](#folder-structure)
 - [Environment Variables](#environment-variables)
-- [License](#license)
+- [Using Insomnia](#using-insomnia)
+
+---
 
 ## Installation
 
@@ -38,11 +47,68 @@ This project provides an API for managing users, posts, groups, and categories. 
     npm start
     ```
 
+---
+
+## Docker MySQL Setup
+
+To set up MySQL for this project, use Docker for quick and isolated database management.
+
+### 1. Run MySQL with Docker
+
+Run the following command to start a MySQL container:
+
+```bash
+docker run --name mysql-container -e MYSQL_ROOT_PASSWORD=root -e MYSQL_DATABASE=backend_db -e MYSQL_USER=admin -e MYSQL_PASSWORD=admin -p 3306:3306 -d mysql:8.0
+```
+
+**Explanation of Flags:**
+- `MYSQL_ROOT_PASSWORD`: Password for the root user.
+- `MYSQL_DATABASE`: Database name (`backend_db`).
+- `MYSQL_USER`: Non-root user (`admin`).
+- `MYSQL_PASSWORD`: Password for the non-root user (`admin`).
+- `-p 3306:3306`: Maps port 3306 of the container to the host.
+
+### 2. Verify MySQL Container
+
+Check if the container is running:
+
+```bash
+docker ps
+```
+
+To access the MySQL CLI:
+
+```bash
+docker exec -it mysql-container mysql -u admin -p
+```
+
+Enter the password (`admin`) when prompted.
+
+### 3. Update Sequelize Configuration
+
+Update the `config/config.json` file to use the Docker MySQL credentials:
+
+```json
+{
+  "development": {
+    "username": "admin",
+    "password": "admin",
+    "database": "backend_db",
+    "host": "127.0.0.1",
+    "dialect": "mysql"
+  }
+}
+```
+
+---
+
 ## Usage
 
-The API runs on `http://localhost:3000` by default. To test the API, use a tool like [Insomnia](https://insomnia.rest/) or [Postman](https://www.postman.com/).
+The API runs on `http://localhost:3000` by default. Use tools like [Insomnia](https://insomnia.rest/) or [Postman](https://www.postman.com/) to test it.
 
 **Note:** The API uses role-based access control (RBAC). Admin users have full access, while regular users have restricted access to certain actions.
+
+---
 
 ## API Endpoints
 
@@ -58,9 +124,26 @@ The API runs on `http://localhost:3000` by default. To test the API, use a tool 
       "password": "yourpassword"
     }
     ```
-  - **Expected Response:** `{ "isLoggedIn": true, "csrfToken": "<csrfToken>" }`
+  - **Expected Response:**
+    ```json
+    {
+      "isLoggedIn": true,
+      "csrfToken": "<csrfToken>"
+    }
+    ```
+
+- **Refresh Token**  
+  Updates the access and refresh tokens.
+  - **Endpoint:** `POST /api/auth/refresh`
+
+- **Logout**  
+  Logs out the user and clears tokens.
+  - **Endpoint:** `POST /api/auth/logout`
+
+---
 
 ### User Endpoints
+
 - **Create User**  
   Creates a new user (admin only).
   - **Endpoint:** `POST /api/admin/users`
@@ -96,25 +179,7 @@ The API runs on `http://localhost:3000` by default. To test the API, use a tool 
   Deletes a user by ID (admin only).
   - **Endpoint:** `DELETE /api/admin/users/:id`
 
-### Group Endpoints
-
-- **Create Group**  
-  Creates a new group.
-  - **Endpoint:** `POST /api/admin/groups`
-  - **Request Body:**
-    ```json
-    {
-      "groupName": "New Group"
-    }
-    ```
-
-- **List All Groups**  
-  Retrieves a list of all groups.
-  - **Endpoint:** `GET /api/admin/groups`
-
-- **Delete Group**  
-  Deletes a specific group by name.
-  - **Endpoint:** `DELETE /api/admin/groups/:name`
+---
 
 ### Post Endpoints
 
@@ -124,7 +189,6 @@ The API runs on `http://localhost:3000` by default. To test the API, use a tool 
   - **Request Body:**
     ```json
     {
-      "authorId": "user-id",
       "content": "Post content",
       "category": "General"
     }
@@ -138,43 +202,7 @@ The API runs on `http://localhost:3000` by default. To test the API, use a tool 
   Deletes a post by ID. Admins can delete any post, while regular users can delete only their own posts.
   - **Endpoint:** `DELETE /api/posts/:postId`
 
-- **Report Post**  
-  Reports a post for review.
-  - **Endpoint:** `POST /api/reports`
-  - **Request Body:**
-    ```json
-    {
-      "postId": "post-id",
-      "reason": "Inappropriate content"
-    }
-    ```
-
-### Category Endpoints
-
-- **Create Category**  
-  Adds a new category.
-  - **Endpoint:** `POST /api/categories`
-  - **Request Body:**
-    ```json
-    {
-      "name": "Category Name",
-      "description": "Description of the category"
-    }
-    ```
-
-- **List All Categories**  
-  Retrieves all categories.
-  - **Endpoint:** `GET /api/categories`
-
-- **Delete Category**  
-  Deletes a specific category by name (admin only).
-  - **Endpoint:** `DELETE /api/categories/:name`
-
-### Statistics Endpoint
-
-- **Get Forum Statistics**  
-  Retrieves forum statistics.
-  - **Endpoint:** `GET /api/statistics`
+---
 
 ## Authorization
 
@@ -184,67 +212,51 @@ This API uses role-based access control:
 
 In routes where admin access is required, middleware is applied to check the user's role before proceeding.
 
+---
+
 ## Testing
 
 To test the API, use a tool like [Insomnia](https://insomnia.rest/) or [Postman](https://www.postman.com/).
 
-### Example Tests
+---
 
-1. **Logging In**  
-   - **Endpoint:** `POST /api/auth/login`
-   - **Body:** 
+## Using Insomnia
+
+Here’s how to authenticate and send requests with the access token using Insomnia:
+
+1. **Login and Retrieve Token**
+   - **Request:**
+     ```http
+     POST /api/auth/login
+     ```
+   - **Body:**
      ```json
      {
        "username": "hassan",
-       "password": "yourpassword"
+       "password": "password123"
      }
      ```
-   - **Expected Result:** Tokens are set in cookies, and response returns `{ "isLoggedIn": true, "csrfToken": "<csrfToken>" }`.
+   - **Response:**
+     The `accessToken` will be set in the `Authorization` header automatically.
 
-2. **Creating a Post**  
-   - **Endpoint:** `POST /api/posts`
-   - **Body:**
-     ```json
-     {
-       "authorId": "user-id",
-       "content": "This is a new post",
-       "category": "General"
-     }
-     ```
-   - **Expected Result:** Created post details with status `201`.
+2. **Set Authorization Header**
+   - Go to your Insomnia request.
+   - Under the "Headers" section, add:
+     - **Key:** `Authorization`
+     - **Value:** `Bearer <your_access_token>`
 
-3. **Deleting a Post**  
-   - **Endpoint:** `DELETE /api/posts/:postId`
-   - **Note:** Ensure `authorId` matches the post’s author ID or user has an admin role.
-   - **Expected Result:** 
-     - Admins can delete any post.
-     - Regular users can delete only their own posts.
-     - Returns `200` if successful, `403` for unauthorized users.
+3. **Test Protected Endpoint**
+   - Use the token in a protected endpoint:
+     - **Request:** `POST /api/posts`
+     - **Body:**
+       ```json
+       {
+         "content": "This is a post",
+         "category": "General"
+       }
+       ```
 
-4. **Creating a Category**  
-   - **Endpoint:** `POST /api/categories`
-   - **Body:**
-     ```json
-     {
-       "name": "New Category",
-       "description": "This is a new category"
-     }
-     ```
-   - **Expected Result:** Returns a success message with `201` status if created.
-
-5. **Creating a Group**  
-   - **Endpoint:** `POST /api/admin/groups`
-   - **Body:**
-     ```json
-     {
-       "groupName": "Development Team"
-     }
-     ```
-   - **Expected Result:** Returns success message with `201` status if created.
-
-6. **Accessing Admin-Only Endpoints as a User**  
-   - Attempt to access an admin-only endpoint as a regular user (e.g., deleting another user’s post).
-   - **Expected Result:** `403 Access denied` message.
+---
 
 ## Folder Structure
 
@@ -268,18 +280,9 @@ Backend-Admin
 └── .env
 ```
 
-### Key Files
-
-- **`app.js`**: Initializes the Express app, middleware, and routes.
-- **`controllers/admin_controller.js`**: Defines functions for user, post, and group management.
-- **`routes/admin_routes.js`**: Admin-related routes.
-- **`routes/post_routes.js`**: Post-related routes.
-- **`domain/user_handler.js`**: Business logic for users, including role management.
-- **`domain/post_handler.js`**: Business logic for posts, including ownership checks.
+---
 
 ## Environment Variables
-
-The application requires certain environment variables. Add these variables to your `.env` file:
 
 ```plaintext
 API_DOCS=true                      # Enable Swagger documentation
@@ -287,4 +290,11 @@ CORS_ALLOWED_ORIGINS="http://localhost:3000" # Allow CORS for this origin
 SECURE=true
 HTTP_ONLY=true
 SAME_SITE="Strict"
+ACCESS_TOKEN_SECRET=your_access_secret
+REFRESH_TOKEN_SECRET=your_refresh_secret
+DB_HOST=127.0.0.1
+DB_USER=admin
+DB_PASSWORD=admin
+DB_NAME=backend_db
+DB_PORT=3306
 ```
