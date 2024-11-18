@@ -56,7 +56,7 @@ exports.login = async (req, res) => {
             sameSite: SAME_SITE,
         });
 
-        res.status(200).json({ isLoggedIn: true, csrfToken, accessToken, });
+        res.status(200).json({ isLoggedIn: true, csrfToken, accessToken, refreshToken });
     } catch (error) {
         console.error(error);
         res.status(500).send({ message: "Internal server error" });
