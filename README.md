@@ -22,7 +22,7 @@ Det här projektet är en administrativ API-tjänst byggd med Node.js, Express, 
 Börja med att klona projektet:
 
 ```bash
-git clone https://github.com/your-username/backend-admin.git
+git clone https://github.com/ismail-m-a/backend-admin.git
 cd backend-admin
 ```
 
