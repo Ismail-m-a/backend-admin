@@ -1,243 +1,28 @@
-// admin_routes.js in routes folder
 const express = require('express');
 const adminController = require("../controllers/admin_controller");
-const { checkAdmin } = require('../middleware/role_middleware'); 
+const { checkAdmin } = require('../middleware/role_middleware');
+const { isLoggedIn } = require('../middleware/auth_middleware'); // Import authentication middleware
 const router = express.Router();
 
-/**
- * @swagger
- * /api/admin/users:
- *   post:
- *     summary: Create a new user
- *     description: Adds a new user to the system.
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               username:
- *                 type: string
- *               password:
- *                 type: string
- *     responses:
- *       201:
- *         description: User created successfully.
- */
+// Route Definitions
+
 router.post('/users', adminController.createUser);
+router.get('/users', isLoggedIn, checkAdmin, adminController.getAllUsers);
+router.get('/users/:id', isLoggedIn, adminController.getUser);
+router.put('/users/:id', isLoggedIn, checkAdmin, adminController.updateUser);
+router.delete('/users/:userId', isLoggedIn, checkAdmin, adminController.deleteUser);
 
-/**
- * @swagger
- * /api/admin/users:
- *   get:
- *     summary: List all users
- *     description: Retrieves a list of users.
- *     responses:
- *       200:
- *         description: A list of users.
- */
-router.get('/users', checkAdmin, adminController.getAllUsers);
+router.post('/groups', isLoggedIn, checkAdmin, adminController.createGroup);
+router.get('/groups', isLoggedIn, checkAdmin, adminController.getGroups);
+router.delete('/groups/:name', isLoggedIn, checkAdmin, adminController.deleteGroup);
 
-/**
- * @swagger
- * /api/admin/users/{id}:
- *   get:
- *     summary: Get a user by ID
- *     description: Retrieves a specific user by their ID.
- *     parameters:
- *     - in: path
- *       name: id
- *       required: true
- *       schema:
- *         type: integer
- *       description: The user ID.
- *     responses:
- *       200:
- *         description: User found.
- *       404:
- *         description: User not found.
- */
-router.get('/users/:id', adminController.getUser);
+router.post('/users/:id/groups', isLoggedIn, adminController.addUserToGroup);
+router.delete('/users/:id/groups/:groupName', isLoggedIn, adminController.removeUserFromGroup);
 
-/**
- * @swagger
- * /api/admin/users/{id}:
- *   put:
- *     summary: Update a user
- *     description: Updates a user's information.
- *     parameters:
- *     - in: path
- *       name: id
- *       required: true
- *       schema:
- *         type: string
- *       description: The user ID.
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               username:
- *                 type: string
- *               password:
- *                 type: string
- *     responses:
- *       200:
- *         description: User updated successfully.
- *       404:
- *         description: User not found.
- */
-router.put('/users/:id', adminController.updateUser);
+router.post('/categories', isLoggedIn, checkAdmin, adminController.addCategory);
+router.get('/categories', isLoggedIn, adminController.getCategories);
+router.delete('/categories/:name', isLoggedIn, checkAdmin, adminController.deleteCategory);
 
-/**
- * @swagger
- * /api/admin/users/{id}:
- *   delete:
- *     summary: Delete a user
- *     description: Deletes a specific user by their ID.
- *     parameters:
- *     - in: path
- *       name: id
- *       required: true
- *       schema:
- *         type: string
- *       description: The user ID.
- *     responses:
- *       200:
- *         description: User deleted successfully.
- *       404:
- *         description: User not found.
- */
-router.delete('/users/:id', checkAdmin, adminController.deleteUser);
-
-/**
- * @swagger
- * /api/admin/groups:
- *   post:
- *     summary: Create a new group
- *     description: Adds a new group to the system.
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               name:
- *                 type: string
- *     responses:
- *       201:
- *         description: Group created successfully.
- */
-router.post('/groups', adminController.createGroup);
-
-/**
- * @swagger
- * /api/admin/groups:
- *   get:
- *     summary: List all groups
- *     description: Retrieves a list of groups.
- *     responses:
- *       200:
- *         description: A list of groups.
- */
-router.get('/groups', adminController.getGroups);
-
-/**
- * @swagger
- * /api/admin/groups/{name}:
- *   delete:
- *     summary: Delete a group
- *     description: Deletes a specific group by name.
- *     parameters:
- *     - in: path
- *       name: name
- *       required: true
- *       schema:
- *         type: string
- *       description: The group name.
- *     responses:
- *       200:
- *         description: Group deleted successfully.
- *       404:
- *         description: Group not found.
- */
-router.delete('/groups/:name', adminController.deleteGroup);
-
-/**
- * @swagger
- * /api/admin/users/{id}/groups:
- *   post:
- *     summary: Add a user to a group
- *     description: Adds a user to a specified group.
- *     parameters:
- *     - in: path
- *       name: id
- *       required: true
- *       schema:
- *         type: string
- *       description: The user ID.
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               groupName:
- *                 type: string
- *     responses:
- *       200:
- *         description: User added to group successfully.
- *       404:
- *         description: User or group not found.
- */
-router.post('/users/:id/groups', adminController.addUserToGroup);
-
-/**
- * @swagger
- * /api/admin/users/{id}/groups/{groupName}:
- *   delete:
- *     summary: Remove a user from a group
- *     description: Removes a user from a specified group.
- *     parameters:
- *     - in: path
- *       name: id
- *       required: true
- *       schema:
- *         type: string
- *       description: The user ID.
- *     - in: path
- *       name: groupName
- *       required: true
- *       schema:
- *         type: string
- *       description: The group name.
- *     responses:
- *       200:
- *         description: User removed from group successfully.
- *       404:
- *         description: User or group not found.
- */
-router.delete('/users/:id/groups/:groupName', adminController.removeUserFromGroup);
-
-
-// Post Routes
-router.post('/posts', adminController.createPost);
-router.get('/posts', adminController.getAllPosts);
-router.post('/reports', adminController.reportPost);
-router.delete('/posts/:postId', checkAdmin, adminController.deletePostById);
-
-// Category Routes
-router.post('/categories', adminController.addCategory);
-router.get('/categories', adminController.getCategories);
-router.delete('/categories/:name', checkAdmin, adminController.deleteCategory);
-
-// Statistics Route
-router.get('/statistics', adminController.getForumStatistics);
-
+router.get('/statistics', isLoggedIn, checkAdmin, adminController.getForumStatistics);
 
 module.exports = router;

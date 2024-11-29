@@ -64,17 +64,23 @@ exports.updateUser = (req, res) => {
 
 // Radera user by ID
 exports.deleteUser = async (req, res) => {
-    const id = req.params.id;
+    const userId = req.params.userId; // måste matcha med route parameter
+
+    if (!userId) {
+        return res.status(400).json({ message: 'User ID is required.' });
+    }
+
     try {
-        const result = await deleteUserById(id);
-        if (result) {
-            res.send('User deleted successfully');
-        } else {
-            res.status(404).send('User not found');
+        const result = await deleteUserById(userId);
+
+        if (result === 0) {
+            return res.status(404).json({ message: 'User not found.' });
         }
+
+        res.status(200).json({ message: 'User deleted successfully.' });
     } catch (error) {
-        console.error('Error deleting user:', error);
-        res.status(500).send('Error deleting user');
+        console.error('Error deleting user:', error.message);
+        res.status(500).json({ message: 'Internal server error while deleting user.' });
     }
 };
 
@@ -134,70 +140,70 @@ exports.deleteGroup = (req, res) => {
     }
 };
 
-// Skapa post/inlägg
-exports.createPost = (req, res) => {
-    const { authorId, content, category } = req.body;
-    const categoryExists = categoryHandler.getCategories().some(cat => cat.name === category);
+// // Skapa post/inlägg
+// exports.createPost = (req, res) => {
+//     const { authorId, content, category } = req.body;
+//     const categoryExists = categoryHandler.getCategories().some(cat => cat.name === category);
 
-    if (!categoryExists) {
-        return res.status(400).send({ message: 'Category does not exist' });
-    }
+//     if (!categoryExists) {
+//         return res.status(400).send({ message: 'Category does not exist' });
+//     }
 
-    const post = postHandler.createPost(authorId, content, category);
-    res.status(201).json(post);
-};
+//     const post = postHandler.createPost(authorId, content, category);
+//     res.status(201).json(post);
+// };
 
-// Hämta all posts
-exports.getAllPosts = (req, res) => {
-    const posts = postHandler.getAllPosts();
-    if (posts.length === 0) {
-        return res.status(404).json({ message: "No posts found" });
-    }
-    res.status(200).json(posts);
-};
+// // Hämta all posts
+// exports.getAllPosts = (req, res) => {
+//     const posts = postHandler.getAllPosts();
+//     if (posts.length === 0) {
+//         return res.status(404).json({ message: "No posts found" });
+//     }
+//     res.status(200).json(posts);
+// };
 
-// Radera en post
-exports.deletePostById = (req, res) => { 
-    const { postId } = req.params;
-    const { userId } = req.body; // Ensure userId is sent in the request body
+// // Radera en post
+// exports.deletePostById = (req, res) => { 
+//     const { postId } = req.params;
+//     const { userId } = req.body; // Ensure userId is sent in the request body
 
-    // Get user, post detailjer
-    const user = getUserById(userId);
-    const post = postHandler.getPostById(postId);
+//     // Get user, post detailjer
+//     const user = getUserById(userId);
+//     const post = postHandler.getPostById(postId);
 
-    console.log("Attempting to delete post with ID:", postId); // Log postId
-    console.log("User attempting to delete post:", userId, "Role:", user ? user.role : "User not found");
+//     console.log("Attempting to delete post with ID:", postId); // Log postId
+//     console.log("User attempting to delete post:", userId, "Role:", user ? user.role : "User not found");
 
-    if (!post) {
-        return res.status(404).json({ message: 'Post not found.' });
-    }
+//     if (!post) {
+//         return res.status(404).json({ message: 'Post not found.' });
+//     }
 
-    // Kontrollera användaren är Admin eller user innan radera
-    if (user && (user.role === 'admin' || post.authorId === userId)) {
-        const success = postHandler.deletePostById(postId);
-        console.log("Post deleted:", success); 
-        if (success) {
-            return res.status(200).json({ message: 'Post deleted successfully.' });
-        } else {
-            return res.status(500).json({ message: 'Failed to delete post.' });
-        }
-    } else {
-        console.log("Access denied for user:", userId);  
-        return res.status(403).json({ message: 'Access denied. You can only delete your own posts.' });
-    }
-};
+//     // Kontrollera användaren är Admin eller user innan radera
+//     if (user && (user.role === 'admin' || post.authorId === userId)) {
+//         const success = postHandler.deletePostById(postId);
+//         console.log("Post deleted:", success); 
+//         if (success) {
+//             return res.status(200).json({ message: 'Post deleted successfully.' });
+//         } else {
+//             return res.status(500).json({ message: 'Failed to delete post.' });
+//         }
+//     } else {
+//         console.log("Access denied for user:", userId);  
+//         return res.status(403).json({ message: 'Access denied. You can only delete your own posts.' });
+//     }
+// };
 
 
-// Reportera post
-exports.reportPost = (req, res) => {
-    const { postId, reason } = req.body;
-    const success = postHandler.reportPost(postId, reason);
-    if (success) {
-        res.status(201).json({ message: 'Post reported successfully.' });
-    } else {
-        res.status(404).json({ message: 'Post not found.' });
-    }
-};
+// // Reportera post
+// exports.reportPost = (req, res) => {
+//     const { postId, reason } = req.body;
+//     const success = postHandler.reportPost(postId, reason);
+//     if (success) {
+//         res.status(201).json({ message: 'Post reported successfully.' });
+//     } else {
+//         res.status(404).json({ message: 'Post not found.' });
+//     }
+// };
 
 // Addera category
 exports.addCategory = (req, res) => {

@@ -1,13 +1,16 @@
+version: "3.8"
 services:
   backend-admin-db:
     image: mysql:8.0
     container_name: backend-admin-db
     restart: always
+    env_file:
+      - .env
     environment:
-      MYSQL_ROOT_PASSWORD: jensen # Only define the root password
-      MYSQL_DATABASE: jensen2024
+      MYSQL_ROOT_PASSWORD: ${MYSQL_PASSWORD} # Referencing from .env
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
     ports:
-      - "3306:3306"
+      - "${MYSQL_PORT}:${MYSQL_PORT}"
     volumes:
       - mysql_data:/var/lib/mysql
 volumes:

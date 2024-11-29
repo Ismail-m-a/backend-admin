@@ -1,5 +1,5 @@
 const express = require('express');
-const { extractUserId } = require('../middleware/auth_middleware'); 
+const { extractUserId, isLoggedIn } = require('../middleware/auth_middleware');
 const postController = require('../controllers/post_controller'); 
 const router = express.Router();
 
@@ -7,7 +7,7 @@ const router = express.Router();
 router.post('/', extractUserId, postController.createPost);
 
 // Hämta all posts
-router.get('/', postController.getAllPosts);
+router.get('/', isLoggedIn, postController.getAllPosts);
 
 // Radera post med ID
 router.delete('/:postId', extractUserId, postController.deletePostById);

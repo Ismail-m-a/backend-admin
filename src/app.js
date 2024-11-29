@@ -52,4 +52,12 @@ app.use('/api/categories', require('./routes/category_routes'));
 
 app.use((req, res) => res.status(404).send('Not Found'));
 
+
+// Middleware to log request payload
+app.use((req, res, next) => {
+    console.log('Incoming Request:', req.method, req.url);
+    console.log('Headers:', req.headers);
+    console.log('Body:', req.body); // This will print the incoming JSON payload
+    next();
+});
 module.exports = app;
